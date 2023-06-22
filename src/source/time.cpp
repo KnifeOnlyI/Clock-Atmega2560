@@ -14,15 +14,6 @@ String getTimeElementString(int value)
            : String(value);
 }
 
-String getTimeString()
-{
-    String hoursStr = getTimeElementString(hours);
-    String minutesStr = getTimeElementString(minutes);
-    String secondsStr = getTimeElementString(seconds);
-
-    return hoursStr + ":" + minutesStr + ":" + secondsStr;
-}
-
 void updateTime(boolean pause)
 {
     if (pause)

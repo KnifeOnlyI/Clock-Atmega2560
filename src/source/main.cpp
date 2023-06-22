@@ -1,8 +1,13 @@
-#include "header/time.hpp"
-#include "header/display.hpp"
+#include <SevSeg.h>
 
-const int resetButtonPin = 13;
-const int timeButtonPin = 12;
+#include "header/time.hpp"
+
+SevSeg sevSegSeconds;
+SevSeg sevSegMinutes;
+SevSeg sevSegHours;
+
+const int resetButtonPin = A0;
+const int timeButtonPin = A1;
 
 bool resetButtonPressed = false;
 bool resetButtonReleased = true;
@@ -19,32 +24,75 @@ void setup()
     pinMode(resetButtonPin, INPUT_PULLUP);
     pinMode(timeButtonPin, INPUT_PULLUP);
 
-    displayBegin();
-    displayPrepare();
+    bool resistorsOnSegments = true;
+    byte hardwareConfig = COMMON_ANODE;
+
+    byte secondsNumDigits = 2;
+    byte secondsDigitPins[] = {22, 23};
+    byte secondsSegmentPins[] = {28, 29, 30, 31, 32, 33, 34, 35};
+
+    byte minutesNumDigits = 2;
+    byte minutesDigitPins[] = {24, 25};
+    byte minutesSegmentPins[] = {36, 37, 38, 39, 40, 41, 42, 43};
+
+    byte hoursNumDigits = 2;
+    byte hoursDigitPins[] = {26, 27};
+    byte hoursSegmentPins[] = {44, 45, 46, 47, 48, 49, 50, 51};
+
+    sevSegSeconds.begin(
+        hardwareConfig,
+        secondsNumDigits,
+        secondsDigitPins,
+        secondsSegmentPins,
+        resistorsOnSegments
+    );
+
+    sevSegMinutes.begin(
+        hardwareConfig,
+        minutesNumDigits,
+        minutesDigitPins,
+        minutesSegmentPins,
+        resistorsOnSegments
+    );
+
+    sevSegHours.begin(
+        hardwareConfig,
+        hoursNumDigits,
+        hoursDigitPins,
+        hoursSegmentPins,
+        resistorsOnSegments
+    );
+
+    sevSegSeconds.setBrightness(100);
+    sevSegMinutes.setBrightness(100);
+    sevSegHours.setBrightness(100);
 }
 
 void draw()
 {
-    String mode = adjustMode > 0 ? "R" : "T";
-    String unitAdjustment = "0";
+    sevSegSeconds.setChars((getTimeElementString(seconds)).c_str());
+    sevSegMinutes.setChars(getTimeElementString(minutes).c_str());
+    sevSegHours.setChars(getTimeElementString(hours).c_str());
 
     if (adjustMode == 1)
     {
-        unitAdjustment = "H";
+        sevSegSeconds.blank();
+        sevSegMinutes.blank();
     }
     else if (adjustMode == 2)
     {
-        unitAdjustment = "M";
+        sevSegHours.blank();
+        sevSegSeconds.blank();
     }
     else if (adjustMode == 3)
     {
-        unitAdjustment = "S";
+        sevSegHours.blank();
+        sevSegMinutes.blank();
     }
 
-    getDisplay().drawStr(0, 0, getTimeString().c_str());
-    getDisplay().drawStr(0, 8, String(mode + String(" - ") + unitAdjustment).c_str());
-
-    getDisplay().sendBuffer();
+    sevSegSeconds.refreshDisplay();
+    sevSegMinutes.refreshDisplay();
+    sevSegHours.refreshDisplay();
 }
 
 void loop()
@@ -118,6 +166,4 @@ void loop()
     draw();
 
     elapsedTime = millis() - beginTime;
-
-    delay(10);
 }
