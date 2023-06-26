@@ -18,6 +18,7 @@ void updateTime(boolean pause)
 {
     if (pause)
     {
+        milliseconds = 0;
         return;
     }
 
